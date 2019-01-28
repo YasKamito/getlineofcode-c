@@ -238,7 +238,7 @@ sub count {
                 my $func_id = sprintf("%03d", $ret_func_count);
                 $functions{$func_id}{"name"} = $ret_func_name;
                 $functions{$func_id}{"loc"} = $ret_func_loc;
-                $functions{$func_id}{"max_nest_count"} = $ret_func_max_nest_count;
+                $functions{$func_id}{"nest"} = $ret_func_max_nest_count;
 
                 $func_name = "";
                 $func_nest_count = 0;
