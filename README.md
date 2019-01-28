@@ -66,6 +66,6 @@ $ cp -p lib/*.pm /Users/xxxxxx/perl5/lib/perl5/.
 ```
 ex)
 
-$ cp -p bin/*.bin /Users/xxxxxx/perl5/bin/.
+$ cp -p bin/*.pl /Users/xxxxxx/perl5/bin/.
 ```
 
