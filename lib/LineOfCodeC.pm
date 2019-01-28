@@ -82,6 +82,21 @@ sub is_start_of_function {
         return (0, $func_name, $func_nest_count);
     }
 
+    # 左波括弧がカウントゼロで、define文はfalse
+    if($str =~ /(^\s*\#define*)(.*)/){
+        return (0, $func_name, $func_nest_count);
+    }
+
+    # 左波括弧がカウントゼロで、typedef文はfalse
+    if($str =~ /(^\s*typedef*)(.*)/){
+        return (0, $func_name, $func_nest_count);
+    }
+
+    # 左波括弧がカウントゼロで、struct文はfalse
+    if($str =~ /(^\s*struct*)(.*)/){
+        return (0, $func_name, $func_nest_count);
+    }
+
     # 左波括弧がカウントゼロで、セミコロンが含まれるのは変数定義なのでfalse
     if($str =~ /(^\s*.*?\s*)(;)(.*?\s*$)/){
         return (0, $func_name, $func_nest_count);

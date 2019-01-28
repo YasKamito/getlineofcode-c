@@ -65,4 +65,34 @@ subtest 'code6, false ' => sub {
     is $func_name, "";
 };
 
+subtest 'code7, false ' => sub {
+    # 左波括弧カウンタが0、#defineが存在するため false
+    my $str = "#define MY_KEY_ENTER     13";
+    my $func = "";
+    my ($got, $func_name, $func_nest_count) = $obj->is_start_of_function($str, $func, 0);
+    is $got, 0;
+    is $func_nest_count, 0;
+    is $func_name, "";
+};
+
+subtest 'code8, false ' => sub {
+    # 左波括弧カウンタが0、typedefが存在するため false
+    my $str = "typedef struct { ";
+    my $func = "";
+    my ($got, $func_name, $func_nest_count) = $obj->is_start_of_function($str, $func, 0);
+    is $got, 0;
+    is $func_nest_count, 0;
+    is $func_name, "";
+};
+
+subtest 'code9, false ' => sub {
+    # 左波括弧カウンタが0、structが存在するため false
+    my $str = " struct { ";
+    my $func = "";
+    my ($got, $func_name, $func_nest_count) = $obj->is_start_of_function($str, $func, 0);
+    is $got, 0;
+    is $func_nest_count, 0;
+    is $func_name, "";
+};
+
 done_testing;
