@@ -23,7 +23,7 @@ subtest 'code3, false /* ' => sub {
     # 行末*/で終わっているが、行頭/*から始まっており、1lineコメントのためfalse
     my $str = "   /* これはコメントです */";
     my $got = $obj->is_end_of_multiline_comment($str);
-    is $got, 0;
+    is $got, 1;
 };
 
 subtest 'code4, true */ ' => sub {
@@ -53,9 +53,16 @@ subtest 'code7 false' => sub {
     is $got, 1;
 };
 
-subtest 'code7 false' => sub {
+subtest 'code8 false' => sub {
     # 行末*/のためtrue
      my $str = "*/";
+    my $got = $obj->is_end_of_multiline_comment($str);
+    is $got, 1;
+};
+
+subtest 'code9 true' => sub {
+    # 行末*/のためtrue
+     my $str = "*//*-< 001 DEL >-*/";
     my $got = $obj->is_end_of_multiline_comment($str);
     is $got, 1;
 };

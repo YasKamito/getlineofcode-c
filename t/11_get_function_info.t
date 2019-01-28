@@ -13,7 +13,7 @@ subtest 'code1, true ' => sub {
     is $func_count, 1;
     is $func_name, "void hashaddrdump(nodeptr *p)";
     is $func_nest_count, 1;
-    is $func_loc, 1;
+    is $func_loc, 0;
     is $func_max_nest_count, 1;
 };
 

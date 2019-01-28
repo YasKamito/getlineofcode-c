@@ -60,12 +60,12 @@ sub is_end_of_multiline_comment {
     my ($str) = @_;
     $str =~ s/^\s*(.+?)\s*$/$1/;
     # 行頭が/*から始まる
-    if($str =~ /^\/\*/){
-        return 0;
-    }else{
+    #if($str =~ /^\/\*/){
+    #    return 0;
+    #}else{
         # 末尾が*/のもの複数行コメント終了位置となるためtrue
         $str =~ /.*\*\/\s*$/ ? 1 : 0;
-    }
+    #}
 }
 
 sub is_start_of_function {
@@ -206,7 +206,7 @@ sub count {
     my $fh;
     my %hash = ();
     my @header;
-    my @codecnt;
+    #my @codecnt;
     my $multiline_flg;
 
     my $func_count;
@@ -214,6 +214,7 @@ sub count {
     my $func_nest_count;
     my $func_loc;
     my $func_max_nest_count;
+    my $ret;
 
     my %functions = ();
     my %function = ();
@@ -226,7 +227,7 @@ sub count {
     $func_loc = 0;
     $func_max_nest_count = 0;
 
-    open $fh, '<', $filename
+    open $fh, '<:encoding(cp932)', $filename
     or die "Cannot open '$filename': $!";
     
     while (my $line = <$fh>) {
@@ -236,8 +237,15 @@ sub count {
             $hash{"blank"} += 1;
         }elsif($self->is_1line_comment($line)){
             $hash{"comment"} += 1;
+            if($self->is_end_of_multiline_comment($line)){
+                $multiline_flg = 0;
+            }
         }elsif($self->is_code_with_1line_comment($line)){
             $hash{"codecomment"} += 1;
+
+            if($self->is_end_of_multiline_comment($line)){
+                $multiline_flg = 0;
+            }
             my ($ret_got, 
                 $ret_func_count, 
                 $ret_func_name, 
@@ -249,6 +257,7 @@ sub count {
                                                                 $func_nest_count, 
                                                                 $func_loc, 
                                                                 $func_max_nest_count);
+            $ret = $ret_got;
             if ( 3 == $ret_got){
                 my $func_id = sprintf("%03d", $ret_func_count);
                 $functions{$func_id}{"name"} = $ret_func_name;
@@ -267,12 +276,16 @@ sub count {
                 $func_loc = $ret_func_loc;
                 $func_max_nest_count = $ret_func_max_nest_count;
             }
-        }elsif($self->is_start_of_multiline_comment($line)){
-            $hash{"comment"} += 1;
-            $multiline_flg = 1;
         }elsif($self->is_end_of_multiline_comment($line)){
             $hash{"comment"} += 1;
             $multiline_flg = 0;
+        }elsif($self->is_start_of_multiline_comment($line)){
+            $hash{"comment"} += 1;
+            $multiline_flg = 1;
+
+            if($self->is_end_of_multiline_comment($line)){
+                $multiline_flg = 0;
+            }
         }elsif($multiline_flg == 1){
             $hash{"comment"} += 1;
         }else{
@@ -288,6 +301,7 @@ sub count {
                                                                 $func_nest_count, 
                                                                 $func_loc, 
                                                                 $func_max_nest_count);
+            $ret = $ret2_got;
             if ( 3 == $ret2_got){
                 my $func_id = sprintf("%03d", $ret2_func_count);
                 $functions{$func_id}{"name"} = $ret2_func_name;
@@ -306,6 +320,18 @@ sub count {
                 $func_max_nest_count = $ret2_func_max_nest_count;
             }
         }
+
+        ### For Debug
+        #my @codecnt;
+        #push(@codecnt, $ret||'0');
+        #push(@codecnt, $multiline_flg||'0');
+        #push(@codecnt, $func_count||'0');
+        #push(@codecnt, $func_nest_count||'0');
+        #push(@codecnt, $func_max_nest_count||'0');
+        #push(@codecnt, $func_loc||'0');
+        #push(@codecnt, $line||'0');
+	    #print join("\t", @codecnt) . "\n";
+
     }
 
     # push(@codecnt, $hash{'FILENAME'}||'0');
