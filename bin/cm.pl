@@ -12,9 +12,11 @@ use JSON qw/ encode_json /;
 use LineOfCodeC;
 use GitChangeOfCode;
 
+my $cmdname = basename $0;
 my $cmtfrom = 'HEAD^';
 my $cmtto = 'HEAD';
 my $lsfilesmode = 0;
+my $gitdiffmode = 0;
 my $optsum = 0;
 my $optfunc = 0;
 my $gitbranch = 'master';
@@ -29,9 +31,10 @@ my $locobj = LineOfCodeC->new;
 my $gcolobj = GitChangeOfCode->new;
 
 GetOptions(
+  'ls-files'    => \$lsfilesmode,
+  'git-diff'    => \$gitdiffmode,
   'from=s'      => \$cmtfrom,
   'to=s'        => \$cmtto,
-  'ls-files'    => \$lsfilesmode,
   'sum'         => \$optsum,
   'function'    => \$optfunc,
   'format=s'    => \$output_format,
@@ -57,11 +60,14 @@ if (is_valid_options()) {
 $gcolobj->move_to_git_dir();
 
 # 変更のあったコード情報を取得
+if ($gitdiffmode) {
+  $codestat = $gcolobj->get_code_info($cmtfrom, $cmtto);
+  $lsfilesmode = 0;
+}
 
+# リポジトリ管理下のすべてのコード情報を取得
 if ($lsfilesmode) {
   $codestat = $gcolobj->get_ls_files($cmtfrom, $cmtto);
-}else{
-  $codestat = $gcolobj->get_code_info($cmtfrom, $cmtto);
 }
 
 # コード有効行情報を取得
@@ -87,8 +93,9 @@ if ($output_format eq "csv"){
 # 以下、関数定義
 # ==============================
 sub is_valid_options {
-  return 0 unless ($output_format ne "csv" && $output_format ne "json"); 
-  return 1;
+  return 1 if ($gitdiffmode ne 1 && $lsfilesmode ne 1); 
+  return 1 if ($output_format ne "csv" && $output_format ne "json"); 
+  return 0;
 }
 
 sub show_help {
@@ -97,15 +104,18 @@ sub show_help {
 This tool for Obtaining line of source code information based on git repository.
 
 Usage:
-     prel $0 [options] filename[or direcory]
+     $cmdname {--ls-files|--git-diff} [Options] filename[or direcory]
 
-Options:   
-        [--from]             commit hash before change.      (default: HEAD^)
-        [--to]               commit hash after change.       (default: HEAD)
-        [--ls-files]         print all files on repository.  (default: false)
-        [--sum]              total count line of all files.  (default: false)
-        [--function]         print function metrics.         (default: false)
-        [--format(csv|json)] set the output format.          (default: csv)
+Mode:
+         --ls-files          print all files on repository.
+         --git-diff          print changed files between commit hashes.
+
+Options:
+        [--from]             commit hash before change.                 (default: HEAD^)
+        [--to]               commit hash after change.                  (default: HEAD)
+        [--sum]              total count line of all files.             (default: false)
+        [--function]         print function metrics.                    (default: false)
+        [--format(csv|json)] set the output format.                     (default: csv)
 
 EOF
     return $help_doc;
