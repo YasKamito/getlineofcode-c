@@ -72,4 +72,26 @@ sub get_code_info{
 
 }
 
+sub get_ls_files{
+
+  my $self = shift;
+  my ($cmtfrom, $cmtto) = @_;
+
+  my %hash = ();
+
+  open FH, "git ls-files |" or die $!;
+  while (<FH>) {
+    chomp;
+    if ($_ =~ m/^.*\.c$|^.*\.h$|^.*\.cpp$|^.*\.sqc$/) {
+      my $fname = $_;
+      $hash{$fname} = $self->get_change_of_line($fname, $cmtfrom, $cmtto);
+      print "";
+    }
+  }
+  close FH;
+
+  return \%hash;
+
+}
+
 1;

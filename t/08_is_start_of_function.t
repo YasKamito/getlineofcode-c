@@ -95,4 +95,44 @@ subtest 'code9, false ' => sub {
     is $func_name, "";
 };
 
+subtest 'code10, false ' => sub {
+    # 左波括弧カウンタが0、#ifdefが存在するため false
+    my $str = "#ifdef MY_KEY_ENTER     13";
+    my $func = "";
+    my ($got, $func_name, $func_nest_count) = $obj->is_start_of_function($str, $func, 0);
+    is $got, 0;
+    is $func_nest_count, 0;
+    is $func_name, "";
+};
+
+subtest 'code11, false ' => sub {
+    # 左波括弧カウンタが0、#ifndefが存在するため false
+    my $str = "#ifndef MY_KEY_ENTER     13";
+    my $func = "";
+    my ($got, $func_name, $func_nest_count) = $obj->is_start_of_function($str, $func, 0);
+    is $got, 0;
+    is $func_nest_count, 0;
+    is $func_name, "";
+};
+
+subtest 'code12, false ' => sub {
+    # 左波括弧カウンタが0、#endifが存在するため false
+    my $str = "#endif";
+    my $func = "";
+    my ($got, $func_name, $func_nest_count) = $obj->is_start_of_function($str, $func, 0);
+    is $got, 0;
+    is $func_nest_count, 0;
+    is $func_name, "";
+};
+
+subtest 'code13, false ' => sub {
+    # 左波括弧カウンタが0、externが存在するため false
+    my $str = "extern";
+    my $func = "";
+    my ($got, $func_name, $func_nest_count) = $obj->is_start_of_function($str, $func, 0);
+    is $got, 0;
+    is $func_nest_count, 0;
+    is $func_name, "";
+};
+
 done_testing;

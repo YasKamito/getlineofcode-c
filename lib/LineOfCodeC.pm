@@ -87,6 +87,21 @@ sub is_start_of_function {
         return (0, $func_name, $func_nest_count);
     }
 
+    # 左波括弧がカウントゼロで、ifdef文はfalse
+    if($str =~ /(^\s*\#ifdef*)(.*)/){
+        return (0, $func_name, $func_nest_count);
+    }
+
+    # 左波括弧がカウントゼロで、ifndef文はfalse
+    if($str =~ /(^\s*\#ifndef*)(.*)/){
+        return (0, $func_name, $func_nest_count);
+    }
+
+    # 左波括弧がカウントゼロで、endif文はfalse
+    if($str =~ /(^\s*\#endif*)(.*)/){
+        return (0, $func_name, $func_nest_count);
+    }
+
     # 左波括弧がカウントゼロで、typedef文はfalse
     if($str =~ /(^\s*typedef*)(.*)/){
         return (0, $func_name, $func_nest_count);
@@ -94,6 +109,11 @@ sub is_start_of_function {
 
     # 左波括弧がカウントゼロで、struct文はfalse
     if($str =~ /(^\s*struct*)(.*)/){
+        return (0, $func_name, $func_nest_count);
+    }
+
+    # 左波括弧がカウントゼロで、extern文はfalse
+    if($str =~ /(^\s*extern*)(.*)/){
         return (0, $func_name, $func_nest_count);
     }
 

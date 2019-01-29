@@ -35,7 +35,9 @@ Usage:
 Options:
         [--from]             commit hash before change.      (default: HEAD^)
         [--to]               commit hash after change.       (default: HEAD)
+        [--ls-files]         print all files on repository.  (default: false)
         [--sum]              total count line of all files.  (default: false)
+        [--function]         print function metrics.         (default: false)
         [--format(csv|json)] set the output format.          (default: csv)
 ```
 

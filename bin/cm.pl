@@ -14,7 +14,9 @@ use GitChangeOfCode;
 
 my $cmtfrom = 'HEAD^';
 my $cmtto = 'HEAD';
-my $sum = 0;
+my $lsfilesmode = 0;
+my $optsum = 0;
+my $optfunc = 0;
 my $gitbranch = 'master';
 my $output_format = "csv";
 my $help;
@@ -29,7 +31,9 @@ my $gcolobj = GitChangeOfCode->new;
 GetOptions(
   'from=s'      => \$cmtfrom,
   'to=s'        => \$cmtto,
-  'sum'         => \$sum,
+  'ls-files'    => \$lsfilesmode,
+  'sum'         => \$optsum,
+  'function'    => \$optfunc,
   'format=s'    => \$output_format,
   'branch=s'    => \$gitbranch,
   'help'        => \$help
@@ -53,13 +57,18 @@ if (is_valid_options()) {
 $gcolobj->move_to_git_dir();
 
 # 変更のあったコード情報を取得
-$codestat = $gcolobj->get_code_info($cmtfrom, $cmtto);
+
+if ($lsfilesmode) {
+  $codestat = $gcolobj->get_ls_files($cmtfrom, $cmtto);
+}else{
+  $codestat = $gcolobj->get_code_info($cmtfrom, $cmtto);
+}
 
 # コード有効行情報を取得
 $codestat = get_loc($codestat);
 
 # 集計モードの場合、コード情報を集計する
-if ($sum) {
+if ($optsum) {
   $codestat = summary($codestat);
 }
 
@@ -93,7 +102,9 @@ Usage:
 Options:   
         [--from]             commit hash before change.      (default: HEAD^)
         [--to]               commit hash after change.       (default: HEAD)
+        [--ls-files]         print all files on repository.  (default: false)
         [--sum]              total count line of all files.  (default: false)
+        [--function]         print function metrics.         (default: false)
         [--format(csv|json)] set the output format.          (default: csv)
 
 EOF
@@ -149,13 +160,20 @@ sub summary {
 sub print_by_csv{
   
   my $hash = shift;
-  my @header = ( 'filename', 'code', 'codecomment', 'comment', 'blank', 'insertions', 'deletions');
-  print join(',', @header) . "\n";
+  my @header;
+
+  if ($optfunc) {
+    @header = ( 'filename', 'code', 'codecomment', 'comment', 'blank', 'insertions', 'deletions', 'func_id', 'func_loc', 'func_nest', 'func_name');
+  }else{
+    @header = ( 'filename', 'code', 'codecomment', 'comment', 'blank', 'insertions', 'deletions');
+  }
+  print join("\t", @header) . "\n";
 
   foreach my $filename (sort keys %$hash)
   {
     my $codeinfo = $hash->{$filename};
     my @output;
+    my $functions;
     push(@output, $filename);
     push(@output, $codeinfo->{'code'}||'-');
     push(@output, $codeinfo->{'codecomment'}||'-');
@@ -163,7 +181,23 @@ sub print_by_csv{
     push(@output, $codeinfo->{'blank'}||'-');
     push(@output, $codeinfo->{'insertions'}||'-');
     push(@output, $codeinfo->{'deletions'}||'-');
-    print join(',', @output) . "\n";
+    print join("\t", @output) . "\n";
+
+    if ($optfunc) {
+      if (! -f $filename) {
+        next;
+      }
+      $functions = $codeinfo->{'functions'};
+      foreach my $func ( sort keys $functions ){
+        my @body;
+        push(@body, "\t\t\t\t\t\t");
+        push(@body, $func);
+        push(@body, $functions->{$func}->{'loc'}||'0');
+        push(@body, $functions->{$func}->{'nest'}||'0');
+        push(@body, $functions->{$func}->{'name'}||'0');
+        print join("\t", @body) . "\n";
+      }
+    }
   }
 }
 
