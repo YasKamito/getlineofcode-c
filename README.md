@@ -30,15 +30,19 @@ $ cm --help
 This tool for Obtaining line of source code information based on git repository.
 
 Usage:
-     prel /Users/username/perl5/bin/cm [options] filename[or direcory]
+     cm.pl {--ls-files|--git-diff} [options]
+
+Mode:
+         --ls-files          print all files on repository.
+         --git-diff          print changed files between commit hashes.
 
 Options:
-        [--from]             commit hash before change.      (default: HEAD^)
-        [--to]               commit hash after change.       (default: HEAD)
-        [--ls-files]         print all files on repository.  (default: false)
-        [--sum]              total count line of all files.  (default: false)
-        [--function]         print function metrics.         (default: false)
-        [--format(csv|json)] set the output format.          (default: csv)
+        [--from]             commit hash before change.                 (default: HEAD^)
+        [--to]               commit hash after change.                  (default: HEAD)
+        [--sum]              total count line of all files.             (default: false)
+        [--function]         print function metrics.                    (default: false)
+        [--format(csv|json)] set the output format.                     (default: csv)
+
 ```
 
 ## Install

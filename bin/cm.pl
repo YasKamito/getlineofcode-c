@@ -104,7 +104,7 @@ sub show_help {
 This tool for Obtaining line of source code information based on git repository.
 
 Usage:
-     $cmdname {--ls-files|--git-diff} [Options] filename[or direcory]
+     $cmdname {--ls-files|--git-diff} [Options]
 
 Mode:
          --ls-files          print all files on repository.
